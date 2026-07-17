@@ -1038,6 +1038,12 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06) !important;
             border-color: rgba(5, 150, 105, 0.2) !important;
         }
+
+        #carousel-prev:hover, #carousel-next:hover {
+            background: #ffffff !important;
+            transform: translateY(-50%) scale(1.08) !important;
+            color: var(--primary) !important;
+        }
     </style>
 </head>
 <body>
@@ -1266,6 +1272,64 @@
         <div style="text-align: center; margin-bottom: 2.5rem; animation: fadeIn 0.4s ease; width: 100%; grid-column: span 2;">
             <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">💡 理財新手村 —— 聽得懂的理財科普</h2>
             <p style="color: var(--text-muted); font-size: 0.95rem;">理財沒有那麼難！用「說人話」的方式，帶你三分鐘看懂常見的儲蓄與投資工具。</p>
+        </div>
+
+        <!-- 新手村圖卡輪播區 -->
+        <div style="max-width: 800px; margin: 0 auto 3rem; background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 28px; padding: 1.5rem; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.03); backdrop-filter: blur(10px); width:100%; grid-column: span 2; animation: fadeIn 0.4s ease; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-images" style="color: var(--primary);"></i>
+                    <span>理財新手村精美圖卡導覽</span>
+                </div>
+                <span id="carousel-page-indicator" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); background: rgba(0,0,0,0.04); padding: 0.25rem 0.75rem; border-radius: 50px;">1 / 10</span>
+            </div>
+            
+            <!-- 輪播主體 -->
+            <div class="school-carousel" style="position: relative; overflow: hidden; border-radius: 20px; aspect-ratio: 16/9; background: #000; box-shadow: inset 0 0 20px rgba(0,0,0,0.2);">
+                <div class="carousel-inner" id="carousel-inner" style="display: flex; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/01.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 01">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/02.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 02">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/03.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 03">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/04.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 04">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/05.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 05">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/06.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 06">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/07.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 07">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/08.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 08">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/09.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 09">
+                    </div>
+                    <div class="carousel-slide" style="flex: 0 0 100%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/10.png" style="width: 100%; height: 100%; object-fit: contain;" alt="理財新手村圖卡 10">
+                    </div>
+                </div>
+                
+                <!-- 左右箭頭 -->
+                <button id="carousel-prev" style="position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.7); backdrop-filter: blur(4px); color: var(--text-main); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button id="carousel-next" style="position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.7); backdrop-filter: blur(4px); color: var(--text-main); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- 小圓點指示器 -->
+            <div class="carousel-dots" id="carousel-dots" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem;"></div>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; animation: fadeIn 0.5s ease; width: 100%; grid-column: span 2;">
@@ -1626,6 +1690,70 @@
                     }
                 });
             });
+
+            // 新手村圖卡輪播邏輯
+            const carouselInner = document.getElementById("carousel-inner");
+            const btnPrev = document.getElementById("carousel-prev");
+            const btnNext = document.getElementById("carousel-next");
+            const pageIndicator = document.getElementById("carousel-page-indicator");
+            const dotsContainer = document.getElementById("carousel-dots");
+            const totalSlides = 10;
+            let currentSlide = 0;
+
+            if (carouselInner && btnPrev && btnNext && pageIndicator && dotsContainer) {
+                // 動態生成小圓點
+                for (let i = 0; i < totalSlides; i++) {
+                    const dot = document.createElement("span");
+                    dot.style.width = "8px";
+                    dot.style.height = "8px";
+                    dot.style.borderRadius = "50%";
+                    dot.style.background = i === 0 ? "var(--primary)" : "rgba(0, 0, 0, 0.15)";
+                    dot.style.cursor = "pointer";
+                    dot.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+                    dot.addEventListener("click", () => {
+                        goToSlide(i);
+                    });
+                    dotsContainer.appendChild(dot);
+                }
+
+                const dots = dotsContainer.querySelectorAll("span");
+
+                const updateCarousel = () => {
+                    carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    pageIndicator.textContent = `${currentSlide + 1} / ${totalSlides}`;
+                    
+                    // 更新小圓點樣式 (Active 的膠囊化)
+                    dots.forEach((dot, idx) => {
+                        if (idx === currentSlide) {
+                            dot.style.background = "var(--primary)";
+                            dot.style.width = "18px";
+                            dot.style.borderRadius = "10px";
+                        } else {
+                            dot.style.background = "rgba(0, 0, 0, 0.15)";
+                            dot.style.width = "8px";
+                            dot.style.borderRadius = "50%";
+                        }
+                    });
+                };
+
+                const goToSlide = (index) => {
+                    currentSlide = index;
+                    updateCarousel();
+                };
+
+                btnPrev.addEventListener("click", () => {
+                    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                    updateCarousel();
+                });
+
+                btnNext.addEventListener("click", () => {
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    updateCarousel();
+                });
+
+                // 初始化第一次更新
+                updateCarousel();
+            }
         });
 
         // 監聽提前解約開關
