@@ -984,6 +984,60 @@
                 bottom: 1rem;
             }
         }
+
+        /* 主分頁 Tab */
+        .main-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 0 auto 2.5rem;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            padding: 0.35rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .tab-item {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .tab-item:hover {
+            color: var(--text-main);
+        }
+
+        .tab-item.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 新手村卡片樣式與動畫 */
+        .school-card {
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+        }
+        
+        .school-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06) !important;
+            border-color: rgba(5, 150, 105, 0.2) !important;
+        }
     </style>
 </head>
 <body>
@@ -1000,7 +1054,17 @@
         </div>
     </header>
 
-    <div class="container">
+    <!-- 主分頁 Tabs -->
+    <div class="main-tabs">
+        <button class="tab-item active" data-target="section-calculator">
+            <i class="fa-solid fa-calculator"></i> 利息試算評比
+        </button>
+        <button class="tab-item" data-target="section-school">
+            <i class="fa-solid fa-graduation-cap"></i> 理財新手村 (科普知識)
+        </button>
+    </div>
+
+    <div class="container" id="section-calculator">
         <!-- 左側控制面板 -->
         <aside class="control-panel">
             <div class="panel-title">
@@ -1195,6 +1259,124 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- 理財新手村 (科普知識) 區塊 -->
+    <div class="container" id="section-school" style="display: none; max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 3rem;">
+        <div style="text-align: center; margin-bottom: 2.5rem; animation: fadeIn 0.4s ease; width: 100%; grid-column: span 2;">
+            <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">💡 理財新手村 —— 聽得懂的理財科普</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">理財沒有那麼難！用「說人話」的方式，帶你三分鐘看懂常見的儲蓄與投資工具。</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; animation: fadeIn 0.5s ease; width: 100%; grid-column: span 2;">
+            <!-- 金融存款卡片 -->
+            <div class="school-card" style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.02); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                    <div style="width: 42px; height: 42px; background: var(--primary-glow); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-piggy-bank"></i>
+                    </div>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0;">1. 金融存款三兄弟</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <strong style="color: var(--primary); font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 活期存款 / 活儲 (隨身皮夾)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            錢隨時能領，最方便。但利息極低（通常年利率僅約 0.2%~0.7%）。個人開戶請認明「活期儲蓄存款」，利息會比普通「活期存款」高出很多！
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--primary); font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 數位帳戶 (高利活存便民甜頭)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            純網銀或數位帳戶（沒有實體分行）。因為省下龐大店面租金與行員成本，在一定額度內（如 10 萬或 30 萬）給你超高的年利率（高達 2%~3.5%），錢可以隨時提領，是近年最受歡迎的存款工具！
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--primary); font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 定期存款 / 定儲 (鎖在保險箱)</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            約定這筆錢幾年內不能動，銀行回報你較高利息（約 1.7%）。未滿一年存定存，一年期以上請選「定期儲蓄存款 (定儲)」賺更多。中途解約利息會打 8 折。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 共同基金卡片 -->
+            <div class="school-card" style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.02); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                    <div style="width: 42px; height: 42px; background: rgba(59, 130, 246, 0.1); color: var(--secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-users-viewfinder"></i>
+                    </div>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0;">2. 共同基金</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <strong style="color: var(--secondary); font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 概念：請司機幫你開車的拼裝車</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            大家把錢集中起來，交給自稱專家的「基金經理人」代為操盤投資，適合沒時間做功課的懶人。
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--secondary); font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 隱形坑：不管賺賠，司機都要收油錢</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            不論最後是幫你賺錢還是賠錢，基金公司每年都會固定扣除約 1%~2% 的「經理費/管理費」，還有買入時的手續費。如果買到績效差的基金，本金賠錢還被多收一筆手續費。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 股票卡片 -->
+            <div class="school-card" style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.02); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                    <div style="width: 42px; height: 42px; background: rgba(239, 68, 68, 0.1); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0;">3. 股票投資</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <strong style="color: var(--accent); font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 概念：當雞排店老闆的合夥股東</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            買下公司一部分的所有權。公司賺錢，你分紅（股利）；公司經營得好，你的股票價值就翻倍；但如果公司倒閉，你投入的本金就會化為烏有。
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--accent); font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 特色：極高回報與心臟考驗</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            股票有機會帶來巨大財富，但需要盯盤與分析財報。不建議在完全不懂的情況下跟風投資，這跟賭博沒有兩樣。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ETF 卡片 -->
+            <div class="school-card" style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.02); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                    <div style="width: 42px; height: 42px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin: 0;">4. ETF (指數型股票基金)</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <strong style="color: #10b981; font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 概念：專家幫你配好的超值分享餐</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            不用自己單買一家股票，ETF 像是一個「合菜便當」（如 0050 裝了台灣前 50 強公司的股票）。你買一個便當，就等於同時投資了這 50 家大公司，風險直接被分散！
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: #10b981; font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 股票與 ETF 的差別</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            <b>股票</b>是單打獨鬥，勝負賭在單一企業；<b>ETF</b> 則是賭台灣整體經濟的平均實力。費用比共同基金便宜非常多，適合懶人與分散風險。
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: #10b981; font-size: 0.95rem; display: block; margin-bottom: 0.2rem;">● 最近很紅的「高股息 ETF」是什麼？</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 0.75rem;">
+                            把「發利息發最大方」的 30~50 家大公司裝在一個便當裡。特色是每季甚至每個月會定期發錢（股息）給你，在台灣深受存股族跟退休族的喜愛。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 版權宣告區 -->
@@ -1423,6 +1605,27 @@
                     }
                 });
             }
+
+            // 主分頁 Tab 切換邏輯
+            const tabItems = document.querySelectorAll(".tab-item");
+            const secCalc = document.getElementById("section-calculator");
+            const secSchool = document.getElementById("section-school");
+
+            tabItems.forEach(tab => {
+                tab.addEventListener("click", () => {
+                    tabItems.forEach(t => t.classList.remove("active"));
+                    tab.classList.add("active");
+                    
+                    const target = tab.getAttribute("data-target");
+                    if (target === "section-calculator") {
+                        secCalc.style.display = "grid";
+                        secSchool.style.display = "none";
+                    } else {
+                        secCalc.style.display = "none";
+                        secSchool.style.display = "block";
+                    }
+                });
+            });
         });
 
         // 監聽提前解約開關
