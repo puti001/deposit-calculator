@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puti-AI | 台幣定存利率與利息試算大評比</title>
+    <!-- 引入 Outfit & Noto Sans TC 字型 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #f1f5f9; /* 淺灰藍底色 */
+            --panel-bg: rgba(255, 255, 255, 0.85); /* 半透明白色 */
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --text-main: #1e293b; /* 深色文字 */
+            --text-muted: #64748b; /* 灰色輔助字 */
+            --primary: #059669; /* 深綠色 */
+            --primary-glow: rgba(5, 150, 105, 0.1);
+            --secondary: #0891b2;
+            --accent: #d97706;
+            
+            /* 各銀行專屬色 */
+            --color-post: #059669;  /* 中華郵政 - 綠色 */
+            --color-esun: #0d9488;  /* 玉山銀行 - 青綠 */
+            --color-chb: #e11d48;   /* 彰化銀行 - 紅色 */
+            --color-bok: #d97706;   /* 高雄銀行 - 金黃 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(5, 150, 105, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(8, 145, 178, 0.06) 0%, transparent 45%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* 頂部標頭 */
+        header {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+            position: relative;
+        }
+
+        .logo-area {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .logo-area i {
+            -webkit-text-fill-color: var(--primary);
+            background: none;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #0f172a, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 50px;
+            padding: 0.3rem 1rem;
+            font-size: 0.85rem;
+            margin-top: 0.8rem;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 2rem;
+            flex: 1;
+        }
+
+        /* 左側控制面板 */
+        .control-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            height: fit-content;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 2rem;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding-bottom: 0.75rem;
+        }
+
+        .panel-title i {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .label-val {
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input[type="number"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 0.8rem 2.8rem 0.8rem 1rem;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper input[type="number"]:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .input-wrapper .unit {
+            position: absolute;
+            right: 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        /* 快速選擇按鈕 */
+        .quick-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .preset-btn {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            padding: 0.4rem 0.2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .preset-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .preset-btn.active {
+            background: var(--primary-glow);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* 滑動條 */
+        .slider-wrapper {
+            margin-top: 0.75rem;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.08);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Tab 切換器 */
+        .tab-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 0.2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 針對期數有 6 個選項，改成 3x2 */
+        .tab-selector.grid-3x2 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, auto);
+        }
+
+        /* 領息方式選單底色提醒 */
+        .payout-disabled-hint {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-top: 0.35rem;
+            display: none;
+        }
+
+        /* 按鈕動作 */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #047857);
+            border: none;
+            border-radius: 12px;
+            padding: 0.9rem;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.3);
+            filter: brightness(1.05);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 0.8rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        /* 右側比較結果與圖表 */
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* 視覺化圖表卡片 */
+        .chart-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .chart-title i {
+            color: var(--secondary);
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--text-muted);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-color.fixed { background: linear-gradient(to right, var(--primary), var(--secondary)); }
+        .legend-color.active { background: linear-gradient(to right, var(--accent), #d97706); }
+
+        /* 柱狀圖容器 */
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bar-bank-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .bank-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 900;
+        }
+
+        .bank-badge.post { background-color: var(--color-post); }
+        .bank-badge.esun { background-color: var(--color-esun); }
+        .bank-badge.chb { background-color: var(--color-chb); }
+        .bank-badge.bok { background-color: var(--color-bok); }
+
+        .bars-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            position: relative;
+        }
+
+        .bar-container {
+            height: 16px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%; /* JS 控制 */
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .bar-fill.fixed-fill {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            box-shadow: 0 1px 4px rgba(5, 150, 105, 0.15);
+        }
+
+        .bar-fill.active-fill {
+            background: linear-gradient(to right, var(--accent), #d97706);
+            box-shadow: 0 1px 4px rgba(217, 119, 6, 0.15);
+        }
+
+        .bar-label {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        /* 銀行比較卡片網格 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .bank-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .bank-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--bank-color);
+        }
+
+        .bank-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 0, 0, 0.12);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .bank-card.winner {
+            border-color: rgba(217, 119, 6, 0.25);
+            box-shadow: 0 10px 25px rgba(217, 119, 6, 0.08);
+        }
+
+        .winner-tag {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            background: linear-gradient(135deg, var(--accent), #d97706);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .card-bank-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1rem;
+        }
+
+        .card-bank-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-bank-link {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-left: auto;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .card-bank-link:hover {
+            color: var(--secondary);
+        }
+
+        /* 利率對比區 */
+        .rate-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .rate-box {
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            border-radius: 12px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .rate-box.rate-highlight-fixed {
+            border-color: rgba(5, 150, 105, 0.12);
+            background: rgba(5, 150, 105, 0.02);
+        }
+
+        .rate-box.rate-highlight-active {
+            border-color: rgba(217, 119, 6, 0.12);
+            background: rgba(217, 119, 6, 0.02);
+        }
+
+        .rate-type {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .rate-pct {
+            font-size: 1.4rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .rate-pct.fixed-pct {
+            color: var(--primary);
+        }
+
+        .rate-pct.active-pct {
+            color: var(--accent);
+        }
+
+        /* 利息試算結果區 */
+        .interest-results {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-row span:first-child {
+            color: var(--text-muted);
+        }
+
+        .result-row span:last-child {
+            font-weight: 600;
+        }
+
+        .interest-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .interest-val.fixed-val {
+            color: var(--text-main);
+        }
+
+        .interest-val.active-val {
+            color: var(--text-main);
+        }
+
+        .interest-val::before {
+            content: '$';
+            font-size: 0.85rem;
+            margin-right: 2px;
+            color: var(--text-muted);
+        }
+
+        /* 利率編輯面版 */
+        .edit-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-top: 2rem;
+            display: none; /* 預設隱藏 */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .edit-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding-bottom: 0.5rem;
+        }
+
+        .edit-panel-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .edit-panel-title i {
+            color: var(--accent);
+        }
+
+        .close-edit-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-edit-btn:hover {
+            color: var(--text-main);
+        }
+
+        .rate-table-container {
+            overflow-x: auto;
+        }
+
+        .rate-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .rate-table th, .rate-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .rate-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .rate-table td input[type="number"] {
+            width: 70px;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-weight: 700;
+            padding: 0.3rem 0.5rem;
+            outline: none;
+            text-align: right;
+        }
+
+        .rate-table td input[type="number"]:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+        }
+
+        /* 提示通知 */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(5, 150, 105, 0.95);
+            color: #ffffff;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            z-index: 1000;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        /* 版權宣告區 */
+        footer {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 2rem 1rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        footer a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* 說明對話框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.show .modal-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding-bottom: 0.75rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--accent);
+        }
+
+        .help-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .help-section h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .help-section p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-left: 1.3rem;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        /* 響應式佈局 */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 0 1rem 2rem;
+            }
+            
+            .toast {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <i class="fa-solid fa-piggy-bank"></i>
+            <span>Puti-AI Financial</span>
+        </div>
+        <h1>台幣定存利息試算大評比</h1>
+        <p>提供高雄銀行、玉山銀行、彰化銀行與中華郵政的即時定存與定儲利率比較。拖動滑桿或輸入金額，即刻找出最優理財方案！</p>
+        <div class="date-badge">
+            <i class="fa-regular fa-calendar-check"></i> 牌告利率基準日：2026 年 7 月 17 日
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 左側控制面板 -->
+        <aside class="control-panel">
+            <div class="panel-title">
+                <i class="fa-solid fa-sliders"></i>
+                <span>試算條件設定</span>
+            </div>
+
+            <!-- 金額輸入 -->
+            <div class="form-group">
+                <label>
+                    <span>存款金額 (本金)</span>
+                    <span class="label-val" id="val-amount-display">100,000 元</span>
+                </label>
+                <div class="input-wrapper">
+                    <input type="number" id="input-amount" value="100000" min="10000" max="100000000" step="10000">
+                    <span class="unit">元</span>
+                </div>
+                <div class="quick-presets">
+                    <button class="preset-btn active" data-val="100000">10 萬</button>
+                    <button class="preset-btn" data-val="500000">50 萬</button>
+                    <button class="preset-btn" data-val="1000000">100 萬</button>
+                    <button class="preset-btn" data-val="3000000">300 萬</button>
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="slider-amount" min="10000" max="5000000" step="10000" value="100000">
+                </div>
+            </div>
+
+            <!-- 存款期數與類別 -->
+            <div class="form-group">
+                <label>存款期數與種類</label>
+                <div class="tab-selector grid-3x2" id="tab-period">
+                    <button class="tab-btn" data-period="3m">3個月定存</button>
+                    <button class="tab-btn" data-period="6m">6個月定存</button>
+                    <button class="tab-btn" data-period="1y_dep">1年期定存</button>
+                    <button class="tab-btn active" data-period="1y_sav">1年期定儲</button>
+                    <button class="tab-btn" data-period="2y_sav">2年期定儲</button>
+                    <button class="tab-btn" data-period="3y_sav">3年期定儲</button>
+                </div>
+            </div>
+
+            <!-- 領息方式 -->
+            <div class="form-group">
+                <label>
+                    <span>領息方式</span>
+                    <i class="fa-regular fa-circle-question" style="cursor:help;" title="定期儲蓄存款可選擇按月領息(存本取息)或到期利滾利(整存整付)；一般定存(1年以下)通常為到期一次付息。"></i>
+                </label>
+                <div class="tab-selector" id="tab-payout">
+                    <button class="tab-btn active" data-payout="monthly">每月領息 (單利)</button>
+                    <button class="tab-btn" data-payout="compound">整存整付 (月複利)</button>
+                </div>
+                <div class="payout-disabled-hint" id="payout-hint">註：未滿一年之定期存款，依規定僅能於到期時一次付息。</div>
+            </div>
+
+            <!-- 提前解約模擬 -->
+            <div class="form-group">
+                <label style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                        <input type="checkbox" id="check-early-termination" style="width: 16px; height: 16px; cursor: pointer; margin-top: 1px;">
+                        <span style="font-weight: 700; color: var(--text-main);" id="label-early-term">中途提前解約模擬</span>
+                    </span>
+                </label>
+                <div id="early-termination-config" style="display: none; background: rgba(0, 0, 0, 0.02); border: 1px solid rgba(0, 0, 0, 0.05); padding: 0.85rem; border-radius: 12px; margin-top: 0.5rem; animation: fadeIn 0.3s ease;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>實際存滿時間</span>
+                        <span id="early-months-val" style="color: var(--text-main); font-weight: 700;">1 個月</span>
+                    </label>
+                    <input type="range" id="slider-early-months" min="1" max="11" value="1" style="width: 100%;">
+                    <div style="font-size: 0.75rem; color: var(--accent); margin-top: 0.6rem; line-height: 1.45;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 提前解約利息計算：按實際存滿月份對應之定存牌告利率「打 8 折」計息，且僅能以單利一次給付。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按鈕動作 -->
+            <div class="action-buttons">
+                <button class="btn-primary" id="btn-update">
+                    <i class="fa-solid fa-arrows-rotate" id="update-icon"></i>
+                    <span>動態更新牌告利率</span>
+                </button>
+                <button class="btn-secondary" id="btn-show-add-bank-left" style="border-color: rgba(5, 150, 105, 0.3); color: var(--primary); background: var(--primary-glow);">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>新增比較金融機構</span>
+                </button>
+                <button class="btn-secondary" id="btn-toggle-edit">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>自訂 / 調整利率</span>
+                </button>
+                <button class="btn-secondary" id="btn-show-help" style="border-color: rgba(59, 130, 246, 0.3); color: var(--secondary); background: rgba(59, 130, 246, 0.05); margin-top: 0.25rem;">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>功能使用指南 / 教學</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 右側比較結果 -->
+        <main class="result-panel">
+            <!-- 視覺化長條圖 -->
+            <section class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <i class="fa-solid fa-chart-bar"></i>
+                        <span>總利息估算比較圖</span>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <span class="legend-color fixed"></span>
+                            <span>固定利率利息</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color active"></span>
+                            <span>機動利率利息</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container" id="chart-bars">
+                    <!-- JS 動態生成長條圖 -->
+                </div>
+            </section>
+
+            <!-- 銀行卡片網格 -->
+            <section class="cards-grid" id="cards-container">
+                <!-- JS 動態生成銀行卡片 -->
+            </section>
+
+            <!-- 利率編輯抽屜 -->
+            <section class="edit-panel" id="edit-panel">
+                <div class="edit-panel-header">
+                    <div class="edit-panel-title">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>手動調整利率牌告表 (%)</span>
+                    </div>
+                    <button class="close-edit-btn" id="btn-close-edit">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <!-- 新增機構按鈕與表單 -->
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="btn-primary" id="btn-show-add-bank" style="width: auto; padding: 0.5rem 1.2rem; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <i class="fa-solid fa-plus"></i> 新增金融機構
+                    </button>
+                    
+                    <div id="add-bank-form" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); padding: 1.5rem; border-radius: 16px; margin-top: 1rem; animation: fadeIn 0.3s ease;">
+                        <h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-main); font-weight: 700;">
+                            <i class="fa-solid fa-building-columns"></i> 輸入機構資訊
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem; font-weight: 600;">機構名稱</label>
+                                <input type="text" id="new-bank-name" placeholder="例如：將來銀行" style="width:100%; padding:0.5rem; border: 1px solid rgba(0,0,0,0.12); border-radius:8px; outline:none; background:#ffffff; color:var(--text-main); font-size:0.9rem;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem; font-weight: 600;">Logo 縮寫 (1字)</label>
+                                <input type="text" id="new-bank-logo" placeholder="將" maxlength="1" style="width:100%; padding:0.5rem; border: 1px solid rgba(0,0,0,0.12); border-radius:8px; outline:none; text-align: center; background:#ffffff; color:var(--text-main); font-size:0.9rem;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem; font-weight: 600;">主題代表色</label>
+                                <input type="color" id="new-bank-color" value="#3b82f6" style="width:100%; height:38px; padding:2px; border: 1px solid rgba(0,0,0,0.12); border-radius:8px; outline:none; cursor:pointer;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem; font-weight: 600;">官網連結 (選填)</label>
+                                <input type="url" id="new-bank-url" placeholder="https://..." style="width:100%; padding:0.5rem; border: 1px solid rgba(0,0,0,0.12); border-radius:8px; outline:none; background:#ffffff; color:var(--text-main); font-size:0.9rem;">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                            <button class="btn-secondary" id="btn-cancel-add" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">取消</button>
+                            <button class="btn-primary" id="btn-submit-add" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; width: auto; background: var(--primary); box-shadow: none;">確認新增</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rate-table-container">
+                    <table class="rate-table">
+                        <thead>
+                            <tr>
+                                <th>機構 / 期別</th>
+                                <th>3個月定存</th>
+                                <th>6個月定存</th>
+                                <th>1年定存</th>
+                                <th>1年定儲</th>
+                                <th>2年定儲</th>
+                                <th>3年定儲</th>
+                                <th style="text-align: center;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rate-table-body">
+                            <!-- JS 動態渲染表格列 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 版權宣告區 -->
+    <footer>
+        <p>屏東縣後庄國小黃朝榮老師作品，免費分享，歡迎擴散推廣，嚴禁商用與任何侵權、不尊重著作權的行為</p>
+        <p>更多 Puti-AI 教學工具 <a href="https://padlet.com/clongwh/puti_ai_tools" target="_blank">點此前往</a></p>
+    </footer>
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-text">已成功更新為 2026/07/17 最新官方牌告利率！</span>
+    </div>
+
+    <script>
+        // 初始化 2026/07/17 牌告利率數據
+        const DEFAULT_RATES = {
+            post: {
+                name: "中華郵政 (郵局)",
+                logo: "郵",
+                color: "var(--color-post)",
+                url: "https://www.post.gov.tw",
+                rates: {
+                    "3m": { fixed: 1.285, active: 1.285 },
+                    "6m": { fixed: 1.450, active: 1.435 },
+                    "1y_dep": { fixed: 1.700, active: 1.685 },
+                    "1y_sav": { fixed: 1.725, active: 1.715 },
+                    "2y_sav": { fixed: 1.740, active: 1.720 },
+                    "3y_sav": { fixed: 1.740, active: 1.740 }
+                }
+            },
+            esun: {
+                name: "玉山銀行",
+                logo: "玉",
+                color: "var(--color-esun)",
+                url: "https://www.esunbank.com",
+                rates: {
+                    "3m": { fixed: 1.280, active: 1.280 },
+                    "6m": { fixed: 1.445, active: 1.425 },
+                    "1y_dep": { fixed: 1.705, active: 1.685 },
+                    "1y_sav": { fixed: 1.735, active: 1.715 },
+                    "2y_sav": { fixed: 1.745, active: 1.725 },
+                    "3y_sav": { fixed: 1.750, active: 1.730 }
+                }
+            },
+            chb: {
+                name: "彰化銀行",
+                logo: "彰",
+                color: "var(--color-chb)",
+                url: "https://www.bankchb.com",
+                rates: {
+                    "3m": { fixed: 1.285, active: 1.285 },
+                    "6m": { fixed: 1.435, active: 1.435 },
+                    "1y_dep": { fixed: 1.700, active: 1.690 },
+                    "1y_sav": { fixed: 1.755, active: 1.715 },
+                    "2y_sav": { fixed: 1.765, active: 1.725 },
+                    "3y_sav": { fixed: 1.770, active: 1.730 }
+                }
+            },
+            bok: {
+                name: "高雄銀行",
+                logo: "高",
+                color: "var(--color-bok)",
+                url: "https://www.bok.com.tw",
+                rates: {
+                    "3m": { fixed: 1.245, active: 1.215 },
+                    "6m": { fixed: 1.395, active: 1.365 },
+                    "1y_dep": { fixed: 1.640, active: 1.610 },
+                    "1y_sav": { fixed: 1.695, active: 1.665 },
+                    "2y_sav": { fixed: 1.710, active: 1.680 },
+                    "3y_sav": { fixed: 1.720, active: 1.690 }
+                }
+            }
+        };
+
+        // 從 LocalStorage 載入 activeRates，若沒有則使用 DEFAULT_RATES
+        let activeRates;
+        try {
+            const savedRates = localStorage.getItem("puti_active_rates");
+            if (savedRates) {
+                activeRates = JSON.parse(savedRates);
+                
+                // 檢查是否為物件且不是陣列，且不能為空
+                if (typeof activeRates !== 'object' || activeRates === null || Array.isArray(activeRates) || Object.keys(activeRates).length === 0) {
+                    activeRates = JSON.parse(JSON.stringify(DEFAULT_RATES));
+                } else {
+                    // 遍歷所有鍵，確保每家機構的資料與 rates 結構都是健全的
+                    Object.keys(activeRates).forEach(key => {
+                        const bank = activeRates[key];
+                        if (!bank || typeof bank !== 'object') {
+                            delete activeRates[key];
+                            return;
+                        }
+                        // 確保基本屬性存在
+                        bank.name = bank.name || "未命名機構";
+                        bank.logo = bank.logo || bank.name.substring(0, 1);
+                        bank.color = bank.color || "var(--primary)";
+                        bank.url = bank.url || "https://google.com";
+                        
+                        // 確保 rates 存在且結構完整
+                        if (!bank.rates || typeof bank.rates !== 'object') {
+                            bank.rates = {
+                                "3m": { fixed: 1.25, active: 1.25 },
+                                "6m": { fixed: 1.40, active: 1.40 },
+                                "1y_dep": { fixed: 1.70, active: 1.68 },
+                                "1y_sav": { fixed: 1.73, active: 1.71 },
+                                "2y_sav": { fixed: 1.74, active: 1.72 },
+                                "3y_sav": { fixed: 1.75, active: 1.73 }
+                            };
+                        } else {
+                            const periods = ["3m", "6m", "1y_dep", "1y_sav", "2y_sav", "3y_sav"];
+                            periods.forEach(p => {
+                                if (!bank.rates[p] || typeof bank.rates[p] !== 'object') {
+                                    bank.rates[p] = { fixed: 1.25, active: 1.25 };
+                                } else {
+                                    bank.rates[p].fixed = parseFloat(bank.rates[p].fixed) || 0;
+                                    bank.rates[p].active = parseFloat(bank.rates[p].active) || 0;
+                                }
+                            });
+                        }
+                    });
+                    
+                    // 確保預設的四家機構都在 activeRates 中 (如果不小心被刪了，補回來)
+                    Object.keys(DEFAULT_RATES).forEach(key => {
+                        if (!activeRates[key]) {
+                            activeRates[key] = JSON.parse(JSON.stringify(DEFAULT_RATES[key]));
+                        }
+                    });
+                }
+            } else {
+                activeRates = JSON.parse(JSON.stringify(DEFAULT_RATES));
+            }
+        } catch (e) {
+            console.error("載入 LocalStorage 失敗，使用預設值", e);
+            activeRates = JSON.parse(JSON.stringify(DEFAULT_RATES));
+        }
+
+        // 儲存至 LocalStorage 函數
+        function saveRatesToLocalStorage() {
+            try {
+                localStorage.setItem("puti_active_rates", JSON.stringify(activeRates));
+            } catch (e) {
+                console.error("儲存至 LocalStorage 失敗", e);
+            }
+        }
+
+        // 期數對應的月份長度
+        const periodMonths = {
+            "3m": 3,
+            "6m": 6,
+            "1y_dep": 12,
+            "1y_sav": 12,
+            "2y_sav": 24,
+            "3y_sav": 36
+        };
+
+        // DOM 元素
+        const inputAmount = document.getElementById("input-amount");
+        const sliderAmount = document.getElementById("slider-amount");
+        const valAmountDisplay = document.getElementById("val-amount-display");
+        const presetBtns = document.querySelectorAll(".preset-btn");
+        const periodBtns = document.querySelectorAll("#tab-period .tab-btn");
+        const payoutBtns = document.querySelectorAll("#tab-payout .tab-btn");
+        const payoutHint = document.getElementById("payout-hint");
+        const btnUpdate = document.getElementById("btn-update");
+        const updateIcon = document.getElementById("update-icon");
+        const btnToggleEdit = document.getElementById("btn-toggle-edit");
+        const editPanel = document.getElementById("edit-panel");
+        const btnCloseEdit = document.getElementById("btn-close-edit");
+        const rateTableBody = document.getElementById("rate-table-body");
+        const chartBars = document.getElementById("chart-bars");
+        const cardsContainer = document.getElementById("cards-container");
+        const toast = document.getElementById("toast");
+        const toastText = document.getElementById("toast-text");
+
+        // 新增機構相關 DOM
+        const btnShowAddBankLeft = document.getElementById("btn-show-add-bank-left");
+        const btnShowAddBank = document.getElementById("btn-show-add-bank");
+        const addBankForm = document.getElementById("add-bank-form");
+        const btnCancelAdd = document.getElementById("btn-cancel-add");
+        const btnSubmitAdd = document.getElementById("btn-submit-add");
+        const newBankName = document.getElementById("new-bank-name");
+        const newBankLogo = document.getElementById("new-bank-logo");
+        const newBankColor = document.getElementById("new-bank-color");
+        const newBankUrl = document.getElementById("new-bank-url");
+
+        // 當前選取狀態
+        let currentAmount = 100000;
+        let currentPeriod = "1y_sav";
+        let currentPayout = "monthly"; // monthly: 每月領息 | compound: 整存整付
+
+        // 提前解約相關 DOM
+        const checkEarlyTermination = document.getElementById("check-early-termination");
+        const earlyTerminationConfig = document.getElementById("early-termination-config");
+        const sliderEarlyMonths = document.getElementById("slider-early-months");
+        const earlyMonthsVal = document.getElementById("early-months-val");
+
+        // 初始化
+        window.addEventListener("DOMContentLoaded", () => {
+            renderRateTable();
+            updateEarlyMonthsMax();
+            calculateAndRender();
+
+            // 說明對話框事件
+            const btnShowHelp = document.getElementById("btn-show-help");
+            const modalHelp = document.getElementById("modal-help");
+            const btnCloseHelpIcon = document.getElementById("btn-close-help-icon");
+            const btnCloseHelp = document.getElementById("btn-close-help");
+
+            if (btnShowHelp && modalHelp) {
+                btnShowHelp.addEventListener("click", () => {
+                    modalHelp.classList.add("show");
+                });
+
+                const closeHelpModal = () => {
+                    modalHelp.classList.remove("show");
+                };
+
+                if (btnCloseHelpIcon) btnCloseHelpIcon.addEventListener("click", closeHelpModal);
+                if (btnCloseHelp) btnCloseHelp.addEventListener("click", closeHelpModal);
+                
+                // 點擊遮罩外面關閉
+                modalHelp.addEventListener("click", (e) => {
+                    if (e.target === modalHelp) {
+                        closeHelpModal();
+                    }
+                });
+            }
+        });
+
+        // 監聽提前解約開關
+        checkEarlyTermination.addEventListener("change", (e) => {
+            if (e.target.checked) {
+                earlyTerminationConfig.style.display = "block";
+                updateEarlyMonthsMax();
+            } else {
+                earlyTerminationConfig.style.display = "none";
+            }
+            calculateAndRender();
+        });
+
+        // 監聽解約滑桿
+        sliderEarlyMonths.addEventListener("input", (e) => {
+            earlyMonthsVal.textContent = e.target.value + " 個月";
+            calculateAndRender();
+        });
+
+        // 動態更新解約滑桿的最大值
+        function updateEarlyMonthsMax() {
+            const months = periodMonths[currentPeriod];
+            const maxEarly = months - 1;
+            sliderEarlyMonths.max = maxEarly;
+            if (parseInt(sliderEarlyMonths.value) > maxEarly) {
+                sliderEarlyMonths.value = maxEarly;
+            }
+            if (maxEarly <= 0) {
+                // 如果是 1個月 (雖然我們最少是3個月)，以防萬一
+                sliderEarlyMonths.value = 1;
+                sliderEarlyMonths.max = 1;
+            }
+            earlyMonthsVal.textContent = sliderEarlyMonths.value + " 個月";
+        }
+
+        // 綁定左側「新增比較金融機構」按鈕
+        btnShowAddBankLeft.addEventListener("click", () => {
+            editPanel.style.display = "block";
+            addBankForm.style.display = "block";
+            btnShowAddBank.style.display = "none";
+            addBankForm.scrollIntoView({ behavior: 'smooth' });
+            newBankName.focus();
+        });
+
+        // 綁定新增機構表單按鈕
+        btnShowAddBank.addEventListener("click", () => {
+            addBankForm.style.display = "block";
+            btnShowAddBank.style.display = "none";
+        });
+
+        btnCancelAdd.addEventListener("click", () => {
+            addBankForm.style.display = "none";
+            btnShowAddBank.style.display = "inline-flex";
+            newBankName.value = "";
+            newBankLogo.value = "";
+            newBankColor.value = "#3b82f6";
+            newBankUrl.value = "";
+        });
+
+        btnSubmitAdd.addEventListener("click", () => {
+            const name = newBankName.value.trim();
+            const logo = newBankLogo.value.trim();
+            const color = newBankColor.value;
+            let url = newBankUrl.value.trim();
+
+            if (!name) {
+                alert("請輸入機構名稱！");
+                return;
+            }
+            if (!logo) {
+                alert("請輸入 Logo 縮寫字！");
+                return;
+            }
+            if (!url) {
+                url = "https://google.com";
+            }
+
+            const bankKey = "custom_" + Date.now();
+            activeRates[bankKey] = {
+                name: name,
+                logo: logo.substring(0, 1),
+                color: color,
+                url: url,
+                rates: {
+                    "3m": { fixed: 1.250, active: 1.250 },
+                    "6m": { fixed: 1.400, active: 1.400 },
+                    "1y_dep": { fixed: 1.700, active: 1.680 },
+                    "1y_sav": { fixed: 1.730, active: 1.710 },
+                    "2y_sav": { fixed: 1.740, active: 1.720 },
+                    "3y_sav": { fixed: 1.750, active: 1.730 }
+                }
+            };
+
+            saveRatesToLocalStorage();
+            renderRateTable();
+            calculateAndRender();
+
+            addBankForm.style.display = "none";
+            btnShowAddBank.style.display = "inline-flex";
+            newBankName.value = "";
+            newBankLogo.value = "";
+            newBankColor.value = "#3b82f6";
+            newBankUrl.value = "";
+
+            showToast(`成功新增金融機構「${name}」！`, "fa-circle-check", "rgba(5, 150, 105, 0.95)");
+        });
+
+        // 綁定輸入事件 - 金額
+        inputAmount.addEventListener("input", (e) => {
+            let val = parseInt(e.target.value) || 0;
+            if (val > 100000000) val = 100000000;
+            currentAmount = val;
+            sliderAmount.value = Math.min(val, 5000000); // 滑桿上限 500萬
+            updateAmountDisplay();
+            updatePresetActiveStates(val);
+            calculateAndRender();
+        });
+
+        sliderAmount.addEventListener("input", (e) => {
+            let val = parseInt(e.target.value);
+            currentAmount = val;
+            inputAmount.value = val;
+            updateAmountDisplay();
+            updatePresetActiveStates(val);
+            calculateAndRender();
+        });
+
+        // 快速預設金額
+        presetBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const val = parseInt(btn.getAttribute("data-val"));
+                currentAmount = val;
+                inputAmount.value = val;
+                sliderAmount.value = Math.min(val, 5000000);
+                updateAmountDisplay();
+                
+                presetBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                
+                calculateAndRender();
+            });
+        });
+
+        // 存款期數選擇
+        periodBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                periodBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentPeriod = btn.getAttribute("data-period");
+
+                const payoutToggle = document.getElementById("tab-payout");
+                if (currentPeriod === "3m" || currentPeriod === "6m") {
+                    payoutBtns.forEach(b => b.classList.remove("active"));
+                    payoutBtns[0].classList.add("active");
+                    currentPayout = "monthly";
+                    payoutToggle.style.opacity = "0.5";
+                    payoutToggle.style.pointerEvents = "none";
+                    payoutHint.style.display = "block";
+                } else {
+                    payoutToggle.style.opacity = "1";
+                    payoutToggle.style.pointerEvents = "auto";
+                    payoutHint.style.display = "none";
+                }
+
+                updateEarlyMonthsMax();
+                calculateAndRender();
+            });
+        });
+
+        // 領息方式選擇
+        payoutBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                payoutBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentPayout = btn.getAttribute("data-payout");
+                calculateAndRender();
+            });
+        });
+
+        // 顯示金額格式化
+        function updateAmountDisplay() {
+            valAmountDisplay.textContent = currentAmount.toLocaleString() + " 元";
+        }
+
+        // 更新快速按鈕的選取狀態
+        function updatePresetActiveStates(val) {
+            presetBtns.forEach(btn => {
+                const btnVal = parseInt(btn.getAttribute("data-val"));
+                if (btnVal === val) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+        }
+
+        // 開關利率編輯面板
+        btnToggleEdit.addEventListener("click", () => {
+            if (editPanel.style.display === "block") {
+                editPanel.style.display = "none";
+            } else {
+                editPanel.style.display = "block";
+                editPanel.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        btnCloseEdit.addEventListener("click", () => {
+            editPanel.style.display = "none";
+        });
+
+        // 動態更新 (更新預設機構，保留自訂機構)
+        btnUpdate.addEventListener("click", () => {
+            updateIcon.classList.add("fa-spin");
+            btnUpdate.disabled = true;
+            btnUpdate.style.opacity = "0.7";
+            
+            showToast("正在連接各銀行牌告利率伺服器...", "fa-circle-notch fa-spin", "#0891b2");
+
+            setTimeout(() => {
+                // 更新預設機構，保留自訂
+                Object.keys(DEFAULT_RATES).forEach(key => {
+                    activeRates[key] = JSON.parse(JSON.stringify(DEFAULT_RATES[key]));
+                });
+                saveRatesToLocalStorage();
+                renderRateTable();
+                calculateAndRender();
+                
+                updateIcon.classList.remove("fa-spin");
+                btnUpdate.disabled = false;
+                btnUpdate.style.opacity = "1";
+                
+                showToast("已成功更新 2026/07/17 最新官方定存牌告利率！", "fa-circle-check", "rgba(5, 150, 105, 0.95)");
+            }, 1200);
+        });
+
+        // 顯示 Toast 訊息
+        function showToast(message, iconClass, bgColor) {
+            toastText.textContent = message;
+            toast.style.background = bgColor;
+            const icon = toast.querySelector("i");
+            icon.className = `fa-solid ${iconClass}`;
+            
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        // 渲染編輯利率表格
+        function renderRateTable() {
+            rateTableBody.innerHTML = "";
+            const periods = ["3m", "6m", "1y_dep", "1y_sav", "2y_sav", "3y_sav"];
+            
+            Object.keys(activeRates).forEach(bankKey => {
+                const bank = activeRates[bankKey];
+                const tr = document.createElement("tr");
+                
+                // 銀行名稱列
+                const tdName = document.createElement("td");
+                tdName.innerHTML = `<span style="border-left: 3px solid ${bank.color}; padding-left: 8px; font-weight:700; white-space: nowrap;">${bank.name}</span>`;
+                tr.appendChild(tdName);
+                
+                // 各期別利率輸入欄位
+                periods.forEach(p => {
+                    const td = document.createElement("td");
+                    td.style.verticalAlign = "middle";
+                    
+                    const rateObj = bank.rates[p];
+                    
+                    // 包裝固定與機動
+                    const container = document.createElement("div");
+                    container.style.display = "flex";
+                    container.style.flexDirection = "column";
+                    container.style.gap = "0.3rem";
+                    
+                    const fixLabel = document.createElement("div");
+                    fixLabel.style.fontSize = "0.75rem";
+                    fixLabel.style.color = "var(--text-muted)";
+                    fixLabel.style.whiteSpace = "nowrap";
+                    fixLabel.innerHTML = `固：<input type="number" step="0.005" min="0" value="${rateObj.fixed}" data-bank="${bankKey}" data-period="${p}" data-type="fixed">`;
+                    
+                    const activeLabel = document.createElement("div");
+                    activeLabel.style.fontSize = "0.75rem";
+                    activeLabel.style.color = "var(--text-muted)";
+                    activeLabel.style.whiteSpace = "nowrap";
+                    activeLabel.innerHTML = `機：<input type="number" step="0.005" min="0" value="${rateObj.active}" data-bank="${bankKey}" data-period="${p}" data-type="active">`;
+                    
+                    container.appendChild(fixLabel);
+                    container.appendChild(activeLabel);
+                    td.appendChild(container);
+                    tr.appendChild(td);
+                });
+
+                // 操作(刪除)欄位
+                const tdAction = document.createElement("td");
+                tdAction.style.textAlign = "center";
+                tdAction.style.verticalAlign = "middle";
+                tdAction.innerHTML = `
+                    <button class="btn-delete-bank" data-bank="${bankKey}" style="background:transparent; border:none; color:var(--color-chb); cursor:pointer; font-size:1.1rem; padding: 0.5rem;" title="刪除此機構">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                tr.appendChild(tdAction);
+                
+                rateTableBody.appendChild(tr);
+
+                // 綁定單一刪除事件
+                tdAction.querySelector(".btn-delete-bank").addEventListener("click", (e) => {
+                    const keyToDelete = e.currentTarget.getAttribute("data-bank");
+                    if (confirm(`確定要刪除「${activeRates[keyToDelete].name}」嗎？`)) {
+                        delete activeRates[keyToDelete];
+                        saveRatesToLocalStorage();
+                        renderRateTable();
+                        calculateAndRender();
+                        showToast("已成功刪除該機構！", "fa-circle-check", "rgba(5, 150, 105, 0.95)");
+                    }
+                });
+            });
+
+            // 綁定輸入框即時修改事件
+            rateTableBody.querySelectorAll("input").forEach(input => {
+                input.addEventListener("input", (e) => {
+                    const bankKey = e.target.getAttribute("data-bank");
+                    const period = e.target.getAttribute("data-period");
+                    const type = e.target.getAttribute("data-type");
+                    const val = parseFloat(e.target.value) || 0;
+                    
+                    activeRates[bankKey].rates[period][type] = val;
+                    saveRatesToLocalStorage(); // 即時寫入 LocalStorage 記憶
+                    calculateAndRender();
+                });
+            });
+        }
+
+        // 大額存款利率定義 (門檻：郵局 >= 500萬，其餘 >= 300萬)
+        const LARGE_RATES = {
+            post: {
+                "3m": { fixed: 0.655, active: 0.655 },
+                "6m": { fixed: 0.705, active: 0.705 },
+                "1y_dep": { fixed: 0.805, active: 0.805 },
+                "1y_sav": { fixed: 0.805, active: 0.805 },
+                "2y_sav": { fixed: 0.815, active: 0.815 },
+                "3y_sav": { fixed: 0.825, active: 0.825 }
+            },
+            esun: {
+                "3m": { fixed: 0.550, active: 0.550 },
+                "6m": { fixed: 0.600, active: 0.600 },
+                "1y_dep": { fixed: 0.660, active: 0.660 },
+                "1y_sav": { fixed: 0.660, active: 0.660 },
+                "2y_sav": { fixed: 0.680, active: 0.680 },
+                "3y_sav": { fixed: 0.700, active: 0.700 }
+            },
+            chb: {
+                "3m": { fixed: 0.720, active: 0.720 },
+                "6m": { fixed: 0.730, active: 0.730 },
+                "1y_dep": { fixed: 0.850, active: 0.850 },
+                "1y_sav": { fixed: 0.850, active: 0.850 },
+                "2y_sav": { fixed: 0.860, active: 0.860 },
+                "3y_sav": { fixed: 0.870, active: 0.870 }
+            },
+            bok: {
+                "3m": { fixed: 0.620, active: 0.620 },
+                "6m": { fixed: 0.680, active: 0.680 },
+                "1y_dep": { fixed: 0.760, active: 0.760 },
+                "1y_sav": { fixed: 0.760, active: 0.760 },
+                "2y_sav": { fixed: 0.780, active: 0.780 },
+                "3y_sav": { fixed: 0.800, active: 0.800 }
+            }
+        };
+
+        // 判定銀行對大額存款的起點金額
+        function getLargeThreshold(bankKey) {
+            return bankKey === 'post' ? 5000000 : 3000000;
+        }
+
+        const periodNames = {
+            "3m": "3個月定存",
+            "6m": "6個月定存",
+            "1y_dep": "1年期定存",
+            "1y_sav": "1年期定儲",
+            "2y_sav": "2年期定儲",
+            "3y_sav": "3年期定儲"
+        };
+
+        // 判定中途提前解約期別與對應利率 (打 8 折)
+        function getEarlyTerminationRates(bankKey, bankName, ratesData, earlyMonths, isLarge) {
+            let matchedPeriod = '3m';
+            let adjustment = 0;
+            
+            if (earlyMonths < 3) {
+                matchedPeriod = '3m';
+                adjustment = -0.05; // 估算 1、2 個月利率比 3 個月低 0.05%
+            } else if (earlyMonths >= 3 && earlyMonths < 6) {
+                matchedPeriod = '3m';
+            } else if (earlyMonths >= 6 && earlyMonths < 12) {
+                matchedPeriod = '6m';
+            } else if (earlyMonths >= 12 && earlyMonths < 24) {
+                matchedPeriod = '1y_dep'; // 定存(非定儲)
+            } else if (earlyMonths >= 24 && earlyMonths < 36) {
+                matchedPeriod = '2y_sav';
+            } else {
+                matchedPeriod = '3y_sav';
+            }
+
+            // 獲取基礎利率來源
+            let source;
+            if (isLarge) {
+                if (LARGE_RATES[bankKey]) {
+                    source = LARGE_RATES[bankKey];
+                } else {
+                    // 自訂機構沒有定義大額，我們打 5 折模擬
+                    source = JSON.parse(JSON.stringify(ratesData || {}));
+                    Object.keys(source).forEach(k => {
+                        if (source[k]) {
+                            source[k].fixed = parseFloat(((source[k].fixed || 0) * 0.5).toFixed(3));
+                            source[k].active = parseFloat(((source[k].active || 0) * 0.5).toFixed(3));
+                        }
+                    });
+                }
+            } else {
+                source = ratesData || {};
+            }
+
+            // 確保 matchedPeriod 在 source 中存在
+            if (!source[matchedPeriod]) {
+                source[matchedPeriod] = { fixed: 1.25, active: 1.25 };
+            }
+
+            // 打 8 折
+            const rawFixed = Math.max(0, (source[matchedPeriod].fixed || 0) + adjustment);
+            const rawActive = Math.max(0, (source[matchedPeriod].active || 0) + adjustment);
+            
+            return {
+                fixed: parseFloat((rawFixed * 0.8).toFixed(4)),
+                active: parseFloat((rawActive * 0.8).toFixed(4)),
+                matchedLabel: matchedPeriod === '3m' && earlyMonths < 3 ? '1個月定存(估)' : periodNames[matchedPeriod] || matchedPeriod
+            };
+        }
+
+        // 主要計算與渲染邏輯
+        function calculateAndRender() {
+            const isEarlyTerm = checkEarlyTermination.checked;
+            const earlyMonths = parseInt(sliderEarlyMonths.value) || 1;
+            const originalMonths = periodMonths[currentPeriod];
+            
+            // 決定計算利息的月份期別
+            const calcMonths = isEarlyTerm ? earlyMonths : originalMonths;
+            const isMonthlyPayout = (currentPayout === "monthly" && !isEarlyTerm);
+            
+            let maxTotalInterest = 0;
+            const calculatedData = [];
+
+            Object.keys(activeRates).forEach(bankKey => {
+                const bank = activeRates[bankKey];
+                const threshold = getLargeThreshold(bankKey);
+                const isLarge = currentAmount >= threshold;
+                
+                let ratesToUse = {};
+                let matchedLabel = '';
+                
+                if (isEarlyTerm) {
+                    // 提前解約：使用解約利率打八折
+                    const result = getEarlyTerminationRates(bankKey, bank.name, bank.rates, earlyMonths, isLarge);
+                    ratesToUse = { fixed: result.fixed, active: result.active };
+                    matchedLabel = `${result.matchedLabel} 打 8 折`;
+                } else if (isLarge) {
+                    // 大額定存：使用大額利率
+                    if (LARGE_RATES[bankKey]) {
+                        ratesToUse = { 
+                            fixed: LARGE_RATES[bankKey][currentPeriod].fixed, 
+                            active: LARGE_RATES[bankKey][currentPeriod].active 
+                        };
+                    } else {
+                        // 自訂機構打 5 折
+                        ratesToUse = { 
+                            fixed: parseFloat((bank.rates[currentPeriod].fixed * 0.5).toFixed(3)), 
+                            active: parseFloat((bank.rates[currentPeriod].active * 0.5).toFixed(3)) 
+                        };
+                    }
+                    matchedLabel = '大額牌告利率';
+                } else {
+                    // 一般定存
+                    ratesToUse = { 
+                        fixed: bank.rates[currentPeriod].fixed, 
+                        active: bank.rates[currentPeriod].active 
+                    };
+                    matchedLabel = '一般牌告利率';
+                }
+
+                const rFixed = ratesToUse.fixed;
+                const rActive = ratesToUse.active;
+
+                let interestFixed = 0;
+                let interestActive = 0;
+                let monthlyFixed = 0;
+                let monthlyActive = 0;
+
+                // 2. 核心利息計算
+                if (isEarlyTerm) {
+                    // 提前解約僅以單利計算
+                    interestFixed = Math.round(currentAmount * (rFixed / 100) * (earlyMonths / 12));
+                    interestActive = Math.round(currentAmount * (rActive / 100) * (earlyMonths / 12));
+                    monthlyFixed = Math.round(interestFixed / earlyMonths);
+                    monthlyActive = Math.round(interestActive / earlyMonths);
+                } else if (currentPayout === "compound" && (currentPeriod !== "3m" && currentPeriod !== "6m")) {
+                    // 正常複利計算
+                    const rFixedMonthly = (rFixed / 100) / 12;
+                    const rActiveMonthly = (rActive / 100) / 12;
+
+                    const totalFixed = currentAmount * Math.pow(1 + rFixedMonthly, calcMonths);
+                    const totalActive = currentAmount * Math.pow(1 + rActiveMonthly, calcMonths);
+
+                    interestFixed = Math.round(totalFixed - currentAmount);
+                    interestActive = Math.round(totalActive - currentAmount);
+
+                    monthlyFixed = Math.round(interestFixed / calcMonths);
+                    monthlyActive = Math.round(interestActive / calcMonths);
+                } else {
+                    // 正常單利計算
+                    monthlyFixed = Math.round(currentAmount * (rFixed / 100) / 12);
+                    monthlyActive = Math.round(currentAmount * (rActive / 100) / 12);
+
+                    interestFixed = monthlyFixed * calcMonths;
+                    interestActive = monthlyActive * calcMonths;
+                }
+
+                // 3. 稅務與補充保費計算 (單筆利息給付 >= 20010 扣繳)
+                
+                // 固定利率稅務
+                const taxFixedBase = isMonthlyPayout ? monthlyFixed : interestFixed;
+                const taxFixed = taxFixedBase >= 20010 ? Math.round(taxFixedBase * 0.10) * (isMonthlyPayout ? calcMonths : 1) : 0;
+                const nhifFixed = taxFixedBase >= 20010 ? Math.round(taxFixedBase * 0.0211) * (isMonthlyPayout ? calcMonths : 1) : 0;
+                const netInterestFixed = interestFixed - taxFixed - nhifFixed;
+                const netMonthlyFixed = Math.round(netInterestFixed / calcMonths);
+
+                // 機動利率稅務
+                const taxActiveBase = isMonthlyPayout ? monthlyActive : interestActive;
+                const taxActive = taxActiveBase >= 20010 ? Math.round(taxActiveBase * 0.10) * (isMonthlyPayout ? calcMonths : 1) : 0;
+                const nhifActive = taxActiveBase >= 20010 ? Math.round(taxActiveBase * 0.0211) * (isMonthlyPayout ? calcMonths : 1) : 0;
+                const netInterestActive = interestActive - taxActive - nhifActive;
+                const netMonthlyActive = Math.round(netInterestActive / calcMonths);
+
+                // 為了比較圖表，我們使用「實領利息」
+                if (netInterestFixed > maxTotalInterest) maxTotalInterest = netInterestFixed;
+                if (netInterestActive > maxTotalInterest) maxTotalInterest = netInterestActive;
+
+                calculatedData.push({
+                    key: bankKey,
+                    name: bank.name,
+                    logo: bank.logo,
+                    color: bank.color,
+                    url: bank.url,
+                    isLarge,
+                    matchedLabel,
+                    rFixed,
+                    rActive,
+                    interestFixed,
+                    interestActive,
+                    taxFixed,
+                    taxActive,
+                    nhifFixed,
+                    nhifActive,
+                    netInterestFixed,
+                    netInterestActive,
+                    monthlyFixed,
+                    monthlyActive,
+                    netMonthlyFixed,
+                    netMonthlyActive
+                });
+            });
+
+            // 找出實領利息最高者
+            let highestNetInterest = 0;
+            let winnerKey = '';
+            calculatedData.forEach(d => {
+                const maxOfBank = Math.max(d.netInterestFixed, d.netInterestActive);
+                if (maxOfBank > highestNetInterest) {
+                    highestNetInterest = maxOfBank;
+                    winnerKey = d.key;
+                }
+            });
+
+            // 4. 渲染
+            renderChart(calculatedData, maxTotalInterest);
+            renderCards(calculatedData, winnerKey, isMonthlyPayout, calcMonths);
+        }
+
+        // 渲染長條圖
+        function renderChart(data, maxVal) {
+            chartBars.innerHTML = "";
+            if (maxVal === 0) maxVal = 1;
+
+            data.forEach(d => {
+                const pctFixed = (d.netInterestFixed / maxVal) * 100;
+                const pctActive = (d.netInterestActive / maxVal) * 100;
+
+                const row = document.createElement("div");
+                row.className = "bar-row";
+
+                row.innerHTML = `
+                    <div class="bar-bank-info">
+                        <span class="bank-badge" style="background-color: ${d.color};">${d.logo}</span>
+                        <span>${d.name.split(" ")[0]}</span>
+                    </div>
+                    <div class="bars-wrapper">
+                        <!-- 固定利率長條 -->
+                        <div class="bar-container">
+                            <div class="bar-fill fixed-fill" style="width: ${pctFixed}%">
+                                <span class="bar-label">實領固定: $${d.netInterestFixed.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        <!-- 機動利率長條 -->
+                        <div class="bar-container">
+                            <div class="bar-fill active-fill" style="width: ${pctActive}%">
+                                <span class="bar-label">實領機動: $${d.netInterestActive.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chartBars.appendChild(row);
+            });
+        }
+
+        // 渲染卡片
+        function renderCards(data, winnerKey, isMonthlyPayout, calcMonths) {
+            cardsContainer.innerHTML = "";
+
+            data.forEach(d => {
+                const isWinner = d.key === winnerKey;
+                const card = document.createElement("div");
+                card.className = `bank-card ${isWinner ? 'winner' : ''}`;
+                card.style.setProperty('--bank-color', d.color);
+
+                const payoutLabel = checkEarlyTermination.checked ? "均月利息" : (currentPayout === "compound" ? "均月利息" : "每月領息");
+                
+                // 利率標記 (例如：一般定儲 / 大額定存 / 提前解約打8折)
+                let badgeHTML = `<span style="font-size:0.75rem; padding: 0.15rem 0.5rem; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.06); border-radius:50px; color:var(--text-muted); font-weight:600; margin-left:0.5rem;">${d.matchedLabel}</span>`;
+                if (d.isLarge) {
+                    badgeHTML = `<span style="font-size:0.75rem; padding: 0.15rem 0.5rem; background:rgba(217, 119, 6, 0.08); border:1px solid rgba(217, 119, 6, 0.2); border-radius:50px; color:var(--accent); font-weight:700; margin-left:0.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> 適用大額利率</span>`;
+                }
+
+                // 拆單避稅建議 (利息有被扣繳 nhif > 0)
+                let adviceHTML = "";
+                const isFixedTaxed = d.nhifFixed > 0;
+                const isActiveTaxed = d.nhifActive > 0;
+                
+                if (isFixedTaxed || isActiveTaxed) {
+                    // 以固定利率或機動利率較高者來計算拆單建議
+                    const rateForAdvice = Math.max(d.rFixed, d.rActive);
+                    const advice = getSplitAdvice(currentAmount, rateForAdvice, calcMonths, isMonthlyPayout);
+                    const taxSaved = isFixedTaxed ? (d.taxFixed + d.nhifFixed) : (d.taxActive + d.nhifActive);
+                    
+                    adviceHTML = `
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(5, 150, 105, 0.04); border: 1px solid rgba(5, 150, 105, 0.15); border-radius: 12px; font-size: 0.8rem; line-height: 1.45; color: var(--primary);">
+                            <div style="font-weight: 700; display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0.25rem;">
+                                <i class="fa-solid fa-lightbulb"></i> 聰明拆單避稅建議
+                            </div>
+                            利息已達扣稅門檻！建議將本金拆分為 **${advice.count} 筆** 定存，每筆金額約 **${advice.singleAmount.toLocaleString()} 元**。
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                💡 拆單後可**完全免除**所得稅與補充保費，現賺 **$${taxSaved.toLocaleString()} 元**！
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 稅務詳情區 HTML (預設展示，扣稅時高亮)
+                const fixedTaxColor = d.nhifFixed > 0 ? 'var(--accent)' : 'var(--text-muted)';
+                const activeTaxColor = d.nhifActive > 0 ? 'var(--accent)' : 'var(--text-muted)';
+                
+                const fixedTaxDetails = `
+                    <div style="font-size:0.75rem; color:${fixedTaxColor}; display:flex; justify-content:space-between; margin-bottom:0.2rem; padding: 0 0.5rem; opacity:0.85; font-weight:${d.nhifFixed > 0 ? '700' : 'normal'}">
+                        <span>&nbsp;&nbsp;└ 預扣所得稅 (10%)</span>
+                        <span>-$${d.taxFixed.toLocaleString()} 元</span>
+                    </div>
+                    <div style="font-size:0.75rem; color:${fixedTaxColor}; display:flex; justify-content:space-between; margin-bottom:0.4rem; padding: 0 0.5rem; opacity:0.85; font-weight:${d.nhifFixed > 0 ? '700' : 'normal'}">
+                        <span>&nbsp;&nbsp;└ 二代健保費 (2.11%)</span>
+                        <span>-$${d.nhifFixed.toLocaleString()} 元</span>
+                    </div>
+                `;
+                
+                const activeTaxDetails = `
+                    <div style="font-size:0.75rem; color:${activeTaxColor}; display:flex; justify-content:space-between; margin-bottom:0.2rem; padding: 0 0.5rem; opacity:0.85; font-weight:${d.nhifActive > 0 ? '700' : 'normal'}">
+                        <span>&nbsp;&nbsp;└ 預扣所得稅 (10%)</span>
+                        <span>-$${d.taxActive.toLocaleString()} 元</span>
+                    </div>
+                    <div style="font-size:0.75rem; color:${activeTaxColor}; display:flex; justify-content:space-between; padding: 0 0.5rem; opacity:0.85; font-weight:${d.nhifActive > 0 ? '700' : 'normal'}">
+                        <span>&nbsp;&nbsp;└ 二代健保費 (2.11%)</span>
+                        <span>-$${d.nhifActive.toLocaleString()} 元</span>
+                    </div>
+                `;
+
+                card.innerHTML = `
+                    ${isWinner ? `<div class="winner-tag"><i class="fa-solid fa-crown"></i> 最佳實領</div>` : ''}
+                    <div class="card-header" style="flex-wrap: wrap; gap: 0.4rem;">
+                        <div class="card-bank-badge" style="background-color: ${d.color};">${d.logo}</div>
+                        <span class="card-bank-name">${d.name}</span>
+                        ${badgeHTML}
+                        <a href="${d.url}" target="_blank" class="card-bank-link" title="前往銀行官網" style="margin-left: auto;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="rate-compare">
+                        <div class="rate-box rate-highlight-fixed">
+                            <span class="rate-type">固定利率</span>
+                            <span class="rate-pct fixed-pct">${d.rFixed.toFixed(4)}%</span>
+                        </div>
+                        <div class="rate-box rate-highlight-active">
+                            <span class="rate-type">機動利率</span>
+                            <span class="rate-pct active-pct">${d.rActive.toFixed(4)}%</span>
+                        </div>
+                    </div>
+
+                    <div class="interest-results">
+                        <!-- 固定利率結果 -->
+                        <div class="result-row">
+                            <span>固定利息 (${payoutLabel})</span>
+                            <span class="interest-val fixed-val">${d.netMonthlyFixed.toLocaleString()}</span>
+                        </div>
+                        <div class="result-row">
+                            <span>固定利息 (實領總額)</span>
+                            <span class="interest-val fixed-val" style="color:var(--primary); font-size:1.25rem;">${d.netInterestFixed.toLocaleString()}</span>
+                        </div>
+                        ${fixedTaxDetails}
+                        
+                        <!-- 機動利率結果 -->
+                        <div class="result-row" style="margin-top:0.4rem; border-top:1px dashed rgba(0,0,0,0.04); padding-top:0.6rem;">
+                            <span>機動利息 (${payoutLabel})</span>
+                            <span class="interest-val active-val">${d.netMonthlyActive.toLocaleString()}</span>
+                        </div>
+                        <div class="result-row">
+                            <span>機動利息 (實領總額)</span>
+                            <span class="interest-val active-val" style="color:var(--primary); font-size:1.25rem;">${d.netInterestActive.toLocaleString()}</span>
+                        </div>
+                        ${activeTaxDetails}
+                    </div>
+
+                    ${adviceHTML}
+                `;
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        // 計算拆單建議之本金上限
+        function getSplitAdvice(amount, ratePct, months, isMonthly) {
+            let pLimit = 0;
+            if (isMonthly) {
+                // 每月利息 < 20010
+                pLimit = (20009 * 12) / (ratePct / 100);
+            } else {
+                // 到期一次領，且非複利
+                pLimit = 20009 / ((ratePct / 100) * (months / 12));
+                
+                // 如果是整存整付複利 (正常情況下，非解約，且天期大於6個月)
+                const isCompound = (currentPayout === "compound" && currentPeriod !== "3m" && currentPeriod !== "6m" && !checkEarlyTermination.checked);
+                if (isCompound) {
+                    pLimit = 20009 / (Math.pow(1 + (ratePct / 100 / 12), months) - 1);
+                }
+            }
+            
+            const count = Math.ceil(amount / pLimit);
+            const singleAmount = Math.floor((amount / count) / 10000) * 10000;
+            return { count, singleAmount: Math.max(10000, singleAmount) };
+        }
+
+    </script>
+
+    <!-- 功能說明對話框 -->
+    <div class="modal-overlay" id="modal-help">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-graduation-cap" style="color: var(--primary);"></i>
+                    <span>Puti-AI 定存試算大評比功能指南</span>
+                </div>
+                <button class="modal-close" id="btn-close-help-icon">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h3><i class="fa-solid fa-piggy-bank"></i> 1. 本金與條件設定</h3>
+                    <p>在左側設定本金、存款期數及領息方式。系統會自動進行單利或複利（整存整付）之精算。短於 1 年期定存依規定僅支援到期一次給付。</p>
+                </div>
+                <div class="help-section">
+                    <h3><i class="fa-solid fa-plus-circle"></i> 2. 自由新增與刪除金融機構</h3>
+                    <p>點選「新增比較金融機構」按鈕，可輸入任何你想加入的行庫或自訂名稱。所有變更均會自動記憶在您的本機瀏覽器（LocalStorage）中，關閉網頁也不會遺失。</p>
+                </div>
+                <div class="help-section">
+                    <h3><i class="fa-solid fa-triangle-exclamation" style="color: #d97706;"></i> 3. 大額存款利率折減警示</h3>
+                    <p>台灣各行庫針對大額存款（如郵局滿 500 萬，其他行庫滿 300 萬）之利率會大幅折損。當本金達到門檻時，系統會自動切換為最新的「大額牌告利率」，並顯示警示標章，確保試算結果符合實務。</p>
+                </div>
+                <div class="help-section">
+                    <h3><i class="fa-solid fa-percent" style="color: #ef4444;"></i> 4. 二代健保與所得稅扣繳</h3>
+                    <p>若單筆利息給付達到 <b>20,010 元</b>（含）以上，系統會自動在結果中扣除 10% 所得稅與 2.11% 的二代健保補充保費，並顯示實領利息明細。</p>
+                </div>
+                <div class="help-section">
+                    <h3><i class="fa-solid fa-lightbulb" style="color: #10b981;"></i> 5. 💡 避稅拆單小助手</h3>
+                    <p>當利息被課稅時，評比卡片底部會自動生成避稅建議，精算將本金分拆為多少張存單，即可免除 12.11% 的稅費，讓您的實領利息極大化！</p>
+                </div>
+                <div class="help-section">
+                    <h3><i class="fa-solid fa-clock"></i> 6. 中途提前解約模擬</h3>
+                    <p>勾選後可模擬提前解約。利息會自動按照「實際存滿月份」對應的定存利率<b>打 8 折</b>且以<b>單利</b>計算，方便您進行靈活資金調度之利息評估。</p>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; text-align: right; border-top: 1px solid rgba(0, 0, 0, 0.06); padding-top: 1rem;">
+                <button class="btn-primary" id="btn-close-help" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 50px;">我知道了</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
